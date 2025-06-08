@@ -6,60 +6,64 @@
   <style>
     body {
       margin: 0;
-      font-family: 'Courier New', Courier, monospace;
       background-color: #f5c9dc;
+      font-family: 'Courier New', Courier, monospace;
     }
+
     #container {
       position: relative;
-      width: 1105px;
-      height: 768px;
-      background-image: url('IMG_3074.png');
-      background-size: cover;
+      width: 648px;
+      height: 1944px;
       margin: auto;
+      background-color: #ffffff;
+      border: 5px solid #ff80b5;
     }
+
     #video {
       position: absolute;
-      top: 114px;
-      left: 850px;
-      width: 192px;
-      height: 512px;
+      width: 585px;
+      height: 585px;
+      top: 87px;
+      left: 50%;
+      transform: translateX(-50%) scaleX(-1);
       object-fit: cover;
       border-radius: 16px;
       z-index: 1;
-      transform: scaleX(-1);
     }
-    canvas {
+
+    #canvas {
       display: none;
     }
+
     #countdown {
       position: absolute;
-      top: 40%;
+      top: 45%;
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: 100px;
       color: white;
       font-weight: bold;
-      text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+      text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6);
       z-index: 10;
       display: none;
     }
+
     #buttons {
-      position: absolute;
-      bottom: 50px;
-      left: 180px;
-      display: flex;
-      gap: 20px;
-      z-index: 2;
+      margin-top: 30px;
+      text-align: center;
     }
+
     button {
       padding: 10px 25px;
-      font-size: 24px;
+      margin: 0 10px;
+      font-size: 20px;
       background-color: #ff80b5;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #ff4c9a;
     }
@@ -67,14 +71,15 @@
 </head>
 <body>
   <div id="container">
-    <video id="video" autoplay playsinline></video>
+    <video id="video" autoplay muted playsinline></video>
     <canvas id="canvas" width="648" height="1944"></canvas>
     <div id="countdown">3</div>
-    <div id="buttons">
-      <button onclick="takePhotos()">Start</button>
-      <button onclick="retakePhotos()">Retake</button>
-      <button onclick="downloadPhoto()">Download</button>
-    </div>
+  </div>
+
+  <div id="buttons">
+    <button onclick="takePhotos()">Start</button>
+    <button onclick="retakePhotos()">Retake</button>
+    <button onclick="downloadPhoto()">Download</button>
   </div>
 
   <script>
@@ -82,13 +87,17 @@
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     const countdownEl = document.getElementById("countdown");
+
     const frameImg = new Image();
     frameImg.src = "IMG_3067.png";
+
+    const photoWidth = 585;
+    const photoHeight = 585;
+    const offsets = [87, 720, 1353]; // Y position for each image
 
     let photos = [];
     let taking = false;
 
-    // Start camera
     navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
       video.srcObject = stream;
     });
@@ -98,6 +107,7 @@
         let count = 3;
         countdownEl.style.display = "block";
         countdownEl.textContent = count;
+
         const interval = setInterval(() => {
           count--;
           if (count > 0) {
@@ -118,8 +128,8 @@
 
       for (let i = 0; i < 3; i++) {
         await showCountdown();
-        const snapshot = capturePhoto();
-        photos.push(snapshot);
+        const photo = capturePhoto();
+        photos.push(photo);
       }
 
       drawFinalImage();
@@ -127,25 +137,23 @@
     }
 
     function capturePhoto() {
-      const width = 648;
-      const height = 648;
       const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = width;
-      tempCanvas.height = height;
+      tempCanvas.width = photoWidth;
+      tempCanvas.height = photoHeight;
       const tempCtx = tempCanvas.getContext("2d");
 
-      // Flip horizontally
-      tempCtx.translate(width, 0);
+      // Flip/mirror
+      tempCtx.translate(photoWidth, 0);
       tempCtx.scale(-1, 1);
-      tempCtx.drawImage(video, 0, 0, width, height);
-
+      tempCtx.drawImage(video, 0, 0, photoWidth, photoHeight);
       return tempCanvas;
     }
 
     function drawFinalImage() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      photos.forEach((p, i) => {
-        ctx.drawImage(p, 0, i * 648, 648, 648);
+
+      photos.forEach((photoCanvas, i) => {
+        ctx.drawImage(photoCanvas, (canvas.width - photoWidth) / 2, offsets[i], photoWidth, photoHeight);
       });
 
       if (frameImg.complete) {
@@ -157,21 +165,21 @@
       }
     }
 
+    function retakePhotos() {
+      photos = [];
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      alert("Photos cleared. You can start again.");
+    }
+
     function downloadPhoto() {
       if (photos.length !== 3) {
-        alert("Please take 3 photos first.");
+        alert("Take all 3 photos before downloading.");
         return;
       }
       const link = document.createElement("a");
       link.download = "Happy_Jaemin_Day.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
-    }
-
-    function retakePhotos() {
-      photos = [];
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      alert("Photos cleared. You can start again!");
     }
   </script>
 </body>
