@@ -34,6 +34,10 @@
       margin-left: 20px;
       position: relative;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
     }
 
     .frame {
@@ -88,6 +92,15 @@
       margin-top: 10px;
     }
 
+    .overview {
+      width: 300px;
+      height: 220px;
+      border: 4px solid white;
+      background-color: white;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
     @keyframes fade {
       0% { opacity: 1; }
       100% { opacity: 0; }
@@ -99,6 +112,7 @@
   <div class="container">
     <div class="photo-area" id="photoArea">
       <div id="countdown"></div>
+      <img id="overviewImage" class="overview" src="" style="margin-top: 10px; display: none;" />
     </div>
     <div class="frame" id="photoFrame"></div>
   </div>
@@ -120,9 +134,9 @@
       if (!video) {
         video = document.createElement('video');
         video.style.width = '100%';
-        video.style.height = '100%';
+        video.style.height = '300px';
         video.style.transform = 'scaleX(-1)';
-        document.getElementById('photoArea').appendChild(video);
+        document.getElementById('photoArea').prepend(video);
 
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
@@ -139,7 +153,6 @@
       await initVideo();
       retakePhotos();
 
-      let photoArea = document.getElementById('photoArea');
       let countdownEl = document.getElementById('countdown');
 
       const countdown = async (num) => {
@@ -170,16 +183,19 @@
 
         showPreview();
         updateFramePreview();
+        showOverview(imgData);
       }
     }
 
     function retakePhotos() {
       capturedImages = [];
       let photoArea = document.getElementById('photoArea');
-      photoArea.innerHTML = '<div id="countdown"></div>';
-      let frame = document.getElementById('photoFrame');
-      frame.innerHTML = '';
+      let videoEl = photoArea.querySelector('video');
+      let overview = document.getElementById('overviewImage');
+      if (overview) overview.style.display = 'none';
+      if (!videoEl) initVideo();
       document.getElementById('previewBar').innerHTML = '';
+      document.getElementById('photoFrame').innerHTML = '';
     }
 
     function updateFramePreview() {
@@ -189,11 +205,11 @@
       capturedImages.forEach((src, index) => {
         const img = document.createElement('img');
         img.src = src;
-        img.style.width = '70px';
-        img.style.height = '45px';
+        img.style.width = '120px';
+        img.style.height = '160px';
         img.style.position = 'absolute';
-        img.style.left = '65px';
-        img.style.top = (72 + index * 208) + 'px';
+        img.style.left = '62px';
+        img.style.top = (70 + index * 206) + 'px';
         img.style.transform = 'scaleX(-1)';
         frame.appendChild(img);
       });
@@ -210,6 +226,14 @@
       });
     }
 
+    function showOverview(imgData) {
+      let overview = document.getElementById('overviewImage');
+      if (overview) {
+        overview.src = imgData;
+        overview.style.display = 'block';
+      }
+    }
+
     function downloadImage() {
       if (capturedImages.length < 3) return alert("Take 3 photos first");
 
@@ -223,10 +247,10 @@
 
         finalCtx.drawImage(frame, 0, 0);
 
-        const imgY = [72, 280, 495];
-        const imgX = 65;
-        const imgW = 190;
-        const imgH = 120;
+        const imgY = [70, 276, 482];
+        const imgX = 62;
+        const imgW = 120;
+        const imgH = 160;
 
         let loadedCount = 0;
 
