@@ -20,7 +20,7 @@
 
     .container {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: flex-start;
       margin: 30px auto;
       width: 90%;
@@ -28,22 +28,12 @@
     }
 
     .photo-area {
-      background-color: #f379b4;
-      width: 640px;
-      height: 954px;
-      margin-left: 20px;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
+      display: none;
     }
 
     .frame {
-      width: 320px;
-      height: 800px;
-      margin-right: 20px;
+      width: 731px;
+      height: 2048px;
       position: relative;
     }
 
@@ -51,8 +41,8 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 320px;
-      height: 800px;
+      width: 731px;
+      height: 2048px;
       pointer-events: none;
       z-index: 10;
     }
@@ -86,34 +76,6 @@
       animation: fade 1s linear;
     }
 
-    .preview-img {
-      width: 80px;
-      height: 100px;
-      margin: 5px;
-      border: 3px solid white;
-      object-fit: cover;
-      transform: scaleX(-1);
-    }
-
-    .preview-bar {
-      display: none;
-    }
-
-    .overview-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 10px;
-    }
-
-    .overview {
-      width: 640px;
-      height: 954px;
-      border: 4px solid white;
-      background-color: white;
-      object-fit: cover;
-      transform: scaleX(-1);
-    }
-
     @keyframes fade {
       0% { opacity: 1; }
       100% { opacity: 0; }
@@ -122,13 +84,7 @@
 </head>
 <body>
   <h1>Happy Jaemin Day!</h1>
-  <div class="overview-container">
-    <img id="overviewImage" class="overview" src="" style="display: none;" />
-  </div>
   <div class="container">
-    <div class="photo-area" id="photoArea">
-      <div id="countdown"></div>
-    </div>
     <div class="frame" id="photoFrame">
       <img src="IMG_3067.png" class="frame-overlay" />
     </div>
@@ -149,11 +105,7 @@
     async function initVideo() {
       if (!video) {
         video = document.createElement('video');
-        video.style.width = '100%';
-        video.style.height = '954px';
-        video.style.transform = 'scaleX(-1)';
-        document.getElementById('photoArea').prepend(video);
-
+        video.style.display = 'none';
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
         await video.play();
@@ -198,43 +150,38 @@
         capturedImages.push(imgData);
 
         updateFramePreview();
-        showOverview(imgData);
       }
     }
 
     function retakePhotos() {
       capturedImages = [];
-      let photoArea = document.getElementById('photoArea');
-      let videoEl = photoArea.querySelector('video');
-      let overview = document.getElementById('overviewImage');
-      if (overview) overview.style.display = 'none';
-      if (!videoEl) initVideo();
-      document.getElementById('photoFrame').innerHTML = '<img src="IMG_3067.png" class="frame-overlay" />';
+      const frame = document.getElementById('photoFrame');
+      frame.innerHTML = '<img src="IMG_3067.png" class="frame-overlay" />';
     }
 
     function updateFramePreview() {
       const frame = document.getElementById('photoFrame');
       frame.innerHTML = '<img src="IMG_3067.png" class="frame-overlay" />';
 
+      const photoPositions = [
+        { top: 50, left: 85 },
+        { top: 740, left: 85 },
+        { top: 1430, left: 85 }
+      ];
+
       capturedImages.forEach((src, index) => {
         const img = document.createElement('img');
         img.src = src;
-        img.style.width = '124px';
-        img.style.height = '95px';
+        img.style.width = '1248px';
+        img.style.height = '954px';
         img.style.position = 'absolute';
-        img.style.left = '98px';
-        img.style.top = (106 + index * 230) + 'px';
+        img.style.left = photoPositions[index].left + 'px';
+        img.style.top = photoPositions[index].top + 'px';
         img.style.transform = 'scaleX(-1)';
+        img.style.width = '561px';
+        img.style.height = '429px';
         frame.appendChild(img);
       });
-    }
-
-    function showOverview(imgData) {
-      let overview = document.getElementById('overviewImage');
-      if (overview) {
-        overview.src = imgData;
-        overview.style.display = 'block';
-      }
     }
 
     function downloadImage() {
@@ -244,16 +191,13 @@
       frame.src = 'IMG_3067.png';
       frame.onload = () => {
         const finalCanvas = document.createElement('canvas');
-        finalCanvas.width = frame.width;
-        finalCanvas.height = frame.height;
+        finalCanvas.width = 731;
+        finalCanvas.height = 2048;
         const finalCtx = finalCanvas.getContext('2d');
 
         finalCtx.drawImage(frame, 0, 0);
 
-        const imgY = [106, 336, 566];
-        const imgX = 98;
-        const imgW = 124;
-        const imgH = 95;
+        const photoPositions = [50, 740, 1430];
 
         let loadedCount = 0;
 
@@ -262,9 +206,9 @@
           img.src = src;
           img.onload = () => {
             finalCtx.save();
-            finalCtx.translate(imgX + imgW, 0);
+            finalCtx.translate(85 + 561, 0);
             finalCtx.scale(-1, 1);
-            finalCtx.drawImage(img, 0, imgY[index], imgW, imgH);
+            finalCtx.drawImage(img, 0, photoPositions[index], 561, 429);
             finalCtx.restore();
 
             loadedCount++;
