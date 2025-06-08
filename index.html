@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -93,6 +92,7 @@
   <div class="buttons">
     <button onclick="startBooth()">Start</button>
     <button onclick="downloadImage()">Download</button>
+    <button onclick="retakePhotos()">Retake</button>
   </div>
 
   <script>
@@ -100,7 +100,7 @@
     let video;
     let canvas;
     let ctx;
-    const capturedImages = [];
+    let capturedImages = [];
 
     async function initVideo() {
       if (!video) {
@@ -161,6 +161,12 @@
       }
     }
 
+    function retakePhotos() {
+      capturedImages = [];
+      let photoArea = document.getElementById('photoArea');
+      photoArea.innerHTML = '<div id="countdown"></div>';
+    }
+
     function downloadImage() {
       if (capturedImages.length < 3) return alert("Take 3 photos first");
 
@@ -205,3 +211,4 @@
   </script>
 </body>
 </html>
+
