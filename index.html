@@ -18,19 +18,11 @@
       margin-top: 40px;
     }
 
-    .container {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      margin: 30px auto;
-      width: 90%;
-      max-width: 1000px;
-    }
-
     .frame {
       width: 731px;
       height: 2048px;
       position: relative;
+      margin: 0 auto;
     }
 
     canvas#main-canvas {
@@ -77,6 +69,7 @@
       font-weight: bold;
       display: none;
       animation: fade 1s linear;
+      z-index: 20;
     }
 
     @keyframes fade {
@@ -87,12 +80,11 @@
 </head>
 <body>
   <h1>Happy Jaemin Day!</h1>
-  <div class="container">
-    <div class="frame" id="photoFrame">
-      <canvas id="main-canvas" width="731" height="2048"></canvas>
-      <img src="IMG_3067.png" class="frame-overlay" />
-    </div>
+  <div class="frame" id="photoFrame">
+    <canvas id="main-canvas" width="731" height="2048"></canvas>
+    <img src="IMG_3067.png" class="frame-overlay" />
   </div>
+  <div id="countdown"></div>
   <div class="buttons">
     <button onclick="startBooth()">Start</button>
     <button onclick="downloadImage()">Download</button>
@@ -125,9 +117,7 @@
       await initVideo();
       retakePhotos();
 
-      const countdownEl = document.createElement('div');
-      countdownEl.id = 'countdown';
-      document.body.appendChild(countdownEl);
+      const countdownEl = document.getElementById('countdown');
 
       const countdown = async (num) => {
         return new Promise((resolve) => {
