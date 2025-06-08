@@ -27,10 +27,6 @@
       max-width: 1000px;
     }
 
-    .photo-area {
-      display: none;
-    }
-
     .frame {
       width: 731px;
       height: 2048px;
@@ -87,6 +83,18 @@
       0% { opacity: 1; }
       100% { opacity: 0; }
     }
+
+    #preview-title {
+      margin-top: 40px;
+      color: white;
+      font-size: 2em;
+    }
+
+    .preview {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+    }
   </style>
 </head>
 <body>
@@ -101,6 +109,11 @@
     <button onclick="startBooth()">Start</button>
     <button onclick="downloadImage()">Download</button>
     <button onclick="retakePhotos()">Retake</button>
+  </div>
+
+  <h2 id="preview-title">Preview Hasil Akhir</h2>
+  <div class="preview">
+    <canvas id="overview" width="731" height="2048"></canvas>
   </div>
 
   <script>
@@ -129,7 +142,9 @@
       await initVideo();
       retakePhotos();
 
-      let countdownEl = document.getElementById('countdown');
+      const countdownEl = document.createElement('div');
+      countdownEl.id = 'countdown';
+      document.body.appendChild(countdownEl);
 
       const countdown = async (num) => {
         return new Promise((resolve) => {
