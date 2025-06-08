@@ -2,182 +2,168 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>3-Cut Photobooth</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photobooth 3-Cut</title>
   <style>
     body {
-      margin: 0;
-      font-family: sans-serif;
       display: flex;
-      flex-direction: row;
       justify-content: center;
       align-items: flex-start;
-      background: #f5f5f5;
-      padding: 20px;
-      gap: 30px;
+      gap: 20px;
+      font-family: sans-serif;
+      margin: 20px;
     }
-
     #overview {
-      position: relative;
-      width: 480px;
-      height: 640px;
-      background: black;
+      transform: scaleX(-1);
+      width: 640px;
+      height: 480px;
+      background: #000;
     }
-
-    video {
+    #frameContainer {
+      position: relative;
+      width: 731px;
+      height: 2048px;
+    }
+    #frameOverlay {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      transform: scaleX(-1);
-    }
-
-    .right-side {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .photo-stack {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 70px; /* spacing between images */
-      margin-bottom: 20px;
-    }
-
-    .captured {
-      width: 230px;
-      height: 160px;
-      object-fit: cover;
-      border: 2px solid #ccc;
-      transform: scaleX(-1);
-    }
-
-    #frame-overlay {
-      width: 240px;
       position: absolute;
       top: 0;
-      right: 0;
-      z-index: 10;
-      opacity: 0.8;
+      left: 0;
       pointer-events: none;
     }
-
-    .controls {
+    .photo-slot {
+      position: absolute;
+      width: 671px;
+      height: 496px;
+      left: 30px;
+      overflow: hidden;
+      background: white;
+    }
+    #photo1 { top: 65px; }
+    #photo2 { top: 606px; }
+    #photo3 { top: 1147px; }
+    canvas {
+      display: none;
+    }
+    #controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      gap: 10px;
-      margin-top: 20px;
+      gap: 20px;
     }
-
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-    }
-
     #countdown {
       position: absolute;
+      font-size: 100px;
+      color: red;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 80px;
-      color: white;
-      text-shadow: 2px 2px 4px black;
       display: none;
-      z-index: 5;
     }
   </style>
 </head>
 <body>
-  <div id="overview">
-    <video id="video" autoplay muted></video>
+  <video id="overview" autoplay></video>
+  <div id="frameContainer">
     <div id="countdown">3</div>
+    <img id="frameOverlay" src="IMG_3067.png" alt="Frame Overlay" />
+    <canvas id="photo1" class="photo-slot"></canvas>
+    <canvas id="photo2" class="photo-slot"></canvas>
+    <canvas id="photo3" class="photo-slot"></canvas>
   </div>
 
-  <div class="right-side">
-    <img src="IMG_3067.png" id="frame-overlay" />
-    <div class="photo-stack" id="photo-stack"></div>
-    <div class="controls">
-      <button onclick="startCapture()">Take Photo</button>
-      <button onclick="retake()">Retake</button>
-      <button onclick="download()">Download</button>
-    </div>
+  <div id="controls">
+    <button id="startBtn">Start</button>
+    <button id="retakeBtn">Retake</button>
+    <button id="downloadBtn">Download</button>
   </div>
 
   <script>
-    const video = document.getElementById('video');
-    const countdownEl = document.getElementById('countdown');
-    const photoStack = document.getElementById('photo-stack');
-    let photos = [];
-    const FRAME_WIDTH = 230;
-    const FRAME_HEIGHT = 160;
+    const video = document.getElementById("overview");
+    const canvas1 = document.getElementById("photo1");
+    const canvas2 = document.getElementById("photo2");
+    const canvas3 = document.getElementById("photo3");
+    const countdownEl = document.getElementById("countdown");
+    const canvases = [canvas1, canvas2, canvas3];
 
-    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+    let stream;
+
+    navigator.mediaDevices.getUserMedia({ video: true }).then((s) => {
+      stream = s;
       video.srcObject = stream;
     });
 
-    function countdown(seconds, callback) {
-      countdownEl.style.display = 'block';
-      countdownEl.textContent = seconds;
+    function showCountdown(callback) {
+      let count = 3;
+      countdownEl.style.display = "block";
+      countdownEl.textContent = count;
       const interval = setInterval(() => {
-        seconds--;
-        countdownEl.textContent = seconds;
-        if (seconds <= 0) {
+        count--;
+        if (count === 0) {
           clearInterval(interval);
-          countdownEl.style.display = 'none';
+          countdownEl.style.display = "none";
           callback();
+        } else {
+          countdownEl.textContent = count;
         }
       }, 1000);
     }
 
-    function startCapture() {
-      if (photos.length >= 3) return alert("Sudah ambil 3 foto!");
-      countdown(3, () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = FRAME_WIDTH;
-        canvas.height = FRAME_HEIGHT;
-        const ctx = canvas.getContext('2d');
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1); // flip horizontal
-        ctx.drawImage(video, 0, 0, FRAME_WIDTH, FRAME_HEIGHT);
-        const img = new Image();
-        img.src = canvas.toDataURL('image/png');
-        img.className = 'captured';
-        photoStack.appendChild(img);
-        photos.push(canvas);
-      });
+    function capturePhoto(index) {
+      const canvas = canvases[index];
+      const ctx = canvas.getContext("2d");
+      canvas.width = 671;
+      canvas.height = 496;
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     }
 
-    function retake() {
-      photoStack.innerHTML = '';
-      photos = [];
-    }
+    document.getElementById("startBtn").addEventListener("click", async () => {
+      for (let i = 0; i < 3; i++) {
+        await new Promise((resolve) => showCountdown(() => {
+          capturePhoto(i);
+          resolve();
+        }));
+      }
+    });
 
-    function download() {
-      if (photos.length !== 3) return alert("Ambil 3 foto dulu!");
+    document.getElementById("retakeBtn").addEventListener("click", () => {
+      canvases.forEach((c) => {
+        const ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height);
+      });
+    });
 
-      const finalCanvas = document.createElement('canvas');
-      const spacing = 70;
-      const width = FRAME_WIDTH;
-      const height = FRAME_HEIGHT * 3 + spacing * 2;
-      finalCanvas.width = width;
-      finalCanvas.height = height;
-      const ctx = finalCanvas.getContext('2d');
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      const finalCanvas = document.createElement("canvas");
+      finalCanvas.width = 731;
+      finalCanvas.height = 2048;
+      const ctx = finalCanvas.getContext("2d");
 
-      photos.forEach((photo, i) => {
-        ctx.drawImage(photo, 0, i * (FRAME_HEIGHT + spacing), FRAME_WIDTH, FRAME_HEIGHT);
+      // white background
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+      const offsets = [65, 606, 1147];
+
+      canvases.forEach((c, i) => {
+        ctx.drawImage(c, 30, offsets[i], 671, 496);
       });
 
-      const overlay = new Image();
-      overlay.src = 'IMG_3067.png';
-      overlay.onload = () => {
-        ctx.drawImage(overlay, 0, 0, width, height);
-        const link = document.createElement('a');
-        link.download = 'photo-booth.png';
-        link.href = finalCanvas.toDataURL('image/png');
+      const frame = new Image();
+      frame.src = "IMG_3067.png";
+      frame.onload = () => {
+        ctx.drawImage(frame, 0, 0, 731, 2048);
+        const link = document.createElement("a");
+        link.download = "photobooth.png";
+        link.href = finalCanvas.toDataURL();
         link.click();
       };
-    }
+    });
   </script>
 </body>
 </html>
