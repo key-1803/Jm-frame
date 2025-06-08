@@ -23,11 +23,12 @@
       width: 800px;
       height: 600px;
       background: #000;
+      position: relative;
     }
     #overview {
       transform: scaleX(-1);
-      width: 400px;
-      height: 300px;
+      width: 200px;
+      height: 150px;
       background: #222;
       margin-top: 10px;
     }
@@ -38,13 +39,13 @@
       margin-top: 20px;
     }
     #controls button {
-      font-size: 28px;
-      padding: 20px 40px;
+      font-size: 32px;
+      padding: 24px 48px;
     }
     #frameContainer {
       position: relative;
-      width: 365px;
-      height: 1024px;
+      width: 244px;
+      height: 683px;
     }
     #frameOverlay {
       width: 100%;
@@ -56,15 +57,15 @@
     }
     .photo-slot {
       position: absolute;
-      width: 335px;
-      height: 248px;
-      left: 15px;
+      width: 224px;
+      height: 166px;
+      left: 10px;
       overflow: hidden;
       background: white;
     }
-    #photo1 { top: 33px; }
-    #photo2 { top: 303px; }
-    #photo3 { top: 573px; }
+    #photo1 { top: 21px; }
+    #photo2 { top: 195px; }
+    #photo3 { top: 369px; }
     canvas {
       display: none;
     }
@@ -82,7 +83,10 @@
 </head>
 <body>
   <div id="leftPanel">
-    <video id="liveview" autoplay></video>
+    <div style="position: relative;">
+      <video id="liveview" autoplay></video>
+      <div id="countdown">3</div>
+    </div>
     <canvas id="overview"></canvas>
     <div id="controls">
       <button id="startBtn">Start</button>
@@ -92,7 +96,6 @@
   </div>
 
   <div id="frameContainer">
-    <div id="countdown">3</div>
     <img id="frameOverlay" src="IMG_3067.png" alt="Frame Overlay" />
     <canvas id="photo1" class="photo-slot"></canvas>
     <canvas id="photo2" class="photo-slot"></canvas>
@@ -143,13 +146,13 @@
       ctx.drawImage(liveVideo, 0, 0, canvas.width, canvas.height);
 
       // update overview
-      overviewCanvas.width = 400;
-      overviewCanvas.height = 300;
+      overviewCanvas.width = 200;
+      overviewCanvas.height = 150;
       ctxOverview.save();
-      ctxOverview.clearRect(0, 0, 400, 300);
-      ctxOverview.translate(400, 0);
+      ctxOverview.clearRect(0, 0, 200, 150);
+      ctxOverview.translate(200, 0);
       ctxOverview.scale(-1, 1);
-      ctxOverview.drawImage(liveVideo, 0, 0, 400, 300);
+      ctxOverview.drawImage(liveVideo, 0, 0, 200, 150);
       ctxOverview.restore();
     }
 
@@ -167,7 +170,7 @@
         const ctx = c.getContext("2d");
         ctx.clearRect(0, 0, c.width, c.height);
       });
-      ctxOverview.clearRect(0, 0, 400, 300);
+      ctxOverview.clearRect(0, 0, 200, 150);
     });
 
     document.getElementById("downloadBtn").addEventListener("click", () => {
