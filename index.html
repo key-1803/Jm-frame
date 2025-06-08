@@ -47,12 +47,10 @@
       display: none;
     }
     #controls {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
       display: flex;
+      justify-content: center;
       gap: 40px;
+      margin-top: 20px;
     }
     #controls button {
       font-size: 24px;
@@ -79,7 +77,11 @@
 <body>
   <div>
     <video id="overview" autoplay></video>
-    <div id="previews"></div>
+    <div id="controls">
+      <button id="startBtn">Start</button>
+      <button id="retakeBtn">Retake</button>
+      <button id="downloadBtn">Download</button>
+    </div>
   </div>
 
   <div id="frameContainer">
@@ -90,19 +92,12 @@
     <canvas id="photo3" class="photo-slot"></canvas>
   </div>
 
-  <div id="controls">
-    <button id="startBtn">Start</button>
-    <button id="retakeBtn">Retake</button>
-    <button id="downloadBtn">Download</button>
-  </div>
-
   <script>
     const video = document.getElementById("overview");
     const canvas1 = document.getElementById("photo1");
     const canvas2 = document.getElementById("photo2");
     const canvas3 = document.getElementById("photo3");
     const countdownEl = document.getElementById("countdown");
-    const previews = document.getElementById("previews");
     const canvases = [canvas1, canvas2, canvas3];
 
     let stream;
@@ -137,15 +132,15 @@
       ctx.scale(-1, 1);
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // update preview
+      // set current photo as overview preview
       const img = new Image();
       img.src = canvas.toDataURL();
       img.className = "preview-img";
-      if (previews.children[index]) {
-        previews.replaceChild(img, previews.children[index]);
-      } else {
-        previews.appendChild(img);
+
+      if (video.nextSibling) {
+        video.parentNode.removeChild(video.nextSibling);
       }
+      video.parentNode.appendChild(img);
     }
 
     document.getElementById("startBtn").addEventListener("click", async () => {
@@ -162,7 +157,8 @@
         const ctx = c.getContext("2d");
         ctx.clearRect(0, 0, c.width, c.height);
       });
-      previews.innerHTML = "";
+      const imgs = document.querySelectorAll(".preview-img");
+      imgs.forEach((img) => img.remove());
     });
 
     document.getElementById("downloadBtn").addEventListener("click", () => {
@@ -171,7 +167,6 @@
       finalCanvas.height = 2048;
       const ctx = finalCanvas.getContext("2d");
 
-      // white background
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
