@@ -30,7 +30,7 @@
     .photo-area {
       background-color: #f379b4;
       width: 70%;
-      height: 500px;
+      height: 640px;
       margin-left: 20px;
       position: relative;
       overflow: hidden;
@@ -41,7 +41,7 @@
     }
 
     .frame {
-      background-image: url('IMG_3076.png');
+      background-image: url('IMG_3067.png');
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
@@ -102,8 +102,8 @@
     }
 
     .overview {
-      width: 320px;
-      height: 240px;
+      width: 640px;
+      height: 480px;
       border: 4px solid white;
       background-color: white;
       object-fit: cover;
@@ -145,7 +145,7 @@
       if (!video) {
         video = document.createElement('video');
         video.style.width = '100%';
-        video.style.height = '300px';
+        video.style.height = '480px';
         video.style.transform = 'scaleX(-1)';
         document.getElementById('photoArea').prepend(video);
 
@@ -249,7 +249,7 @@
       if (capturedImages.length < 3) return alert("Take 3 photos first");
 
       const frame = new Image();
-      frame.src = 'IMG_3076.png';
+      frame.src = 'IMG_3067.png';
       frame.onload = () => {
         const finalCanvas = document.createElement('canvas');
         finalCanvas.width = frame.width;
