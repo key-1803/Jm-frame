@@ -81,9 +81,12 @@
     }
 
     .preview-img {
-      width: 150px;
+      width: 80px;
+      height: 100px;
       margin: 5px;
       border: 3px solid white;
+      object-fit: cover;
+      transform: scaleX(-1);
     }
 
     .preview-bar {
@@ -92,9 +95,15 @@
       margin-top: 10px;
     }
 
+    .overview-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
     .overview {
-      width: 300px;
-      height: 220px;
+      width: 320px;
+      height: 240px;
       border: 4px solid white;
       background-color: white;
       object-fit: cover;
@@ -109,19 +118,21 @@
 </head>
 <body>
   <h1>Happy Jaemin Day!</h1>
+  <div class="overview-container">
+    <img id="overviewImage" class="overview" src="" style="display: none;" />
+  </div>
   <div class="container">
     <div class="photo-area" id="photoArea">
       <div id="countdown"></div>
-      <img id="overviewImage" class="overview" src="" style="margin-top: 10px; display: none;" />
     </div>
     <div class="frame" id="photoFrame"></div>
   </div>
-  <div class="preview-bar" id="previewBar"></div>
   <div class="buttons">
     <button onclick="startBooth()">Start</button>
     <button onclick="downloadImage()">Download</button>
     <button onclick="retakePhotos()">Retake</button>
   </div>
+  <div class="preview-bar" id="previewBar"></div>
 
   <script>
     let stream;
