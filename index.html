@@ -33,7 +33,7 @@
       position: relative;
     }
 
-    canvas#overview {
+    canvas#main-canvas {
       position: absolute;
       top: 0;
       left: 0;
@@ -101,7 +101,7 @@
   <h1>Happy Jaemin Day!</h1>
   <div class="container">
     <div class="frame" id="photoFrame">
-      <canvas id="overview" width="731" height="2048"></canvas>
+      <canvas id="main-canvas" width="731" height="2048"></canvas>
       <img src="IMG_3067.png" class="frame-overlay" />
     </div>
   </div>
@@ -113,7 +113,7 @@
 
   <h2 id="preview-title">Preview Hasil Akhir</h2>
   <div class="preview">
-    <canvas id="overview" width="731" height="2048"></canvas>
+    <canvas id="preview-canvas" width="731" height="2048"></canvas>
   </div>
 
   <script>
@@ -178,13 +178,19 @@
 
     function retakePhotos() {
       capturedImages = [];
-      const ctxOverview = document.getElementById('overview').getContext('2d');
-      ctxOverview.clearRect(0, 0, 731, 2048);
+      const ctxMain = document.getElementById('main-canvas').getContext('2d');
+      ctxMain.clearRect(0, 0, 731, 2048);
+
+      const ctxPreview = document.getElementById('preview-canvas').getContext('2d');
+      ctxPreview.clearRect(0, 0, 731, 2048);
     }
 
     function updateFramePreview() {
-      const ctxOverview = document.getElementById('overview').getContext('2d');
-      ctxOverview.clearRect(0, 0, 731, 2048);
+      const ctxMain = document.getElementById('main-canvas').getContext('2d');
+      const ctxPreview = document.getElementById('preview-canvas').getContext('2d');
+
+      ctxMain.clearRect(0, 0, 731, 2048);
+      ctxPreview.clearRect(0, 0, 731, 2048);
 
       const photoPositions = [
         { x: 85, y: 50 },
@@ -196,11 +202,13 @@
         const img = new Image();
         img.src = src;
         img.onload = () => {
-          ctxOverview.save();
-          ctxOverview.translate(photoPositions[index].x + 561, photoPositions[index].y);
-          ctxOverview.scale(-1, 1);
-          ctxOverview.drawImage(img, 0, 0, 561, 429);
-          ctxOverview.restore();
+          [ctxMain, ctxPreview].forEach(ctx => {
+            ctx.save();
+            ctx.translate(photoPositions[index].x + 561, photoPositions[index].y);
+            ctx.scale(-1, 1);
+            ctx.drawImage(img, 0, 0, 561, 429);
+            ctx.restore();
+          });
         };
       });
     }
