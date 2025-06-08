@@ -41,12 +41,12 @@
     }
 
     .frame {
-      background-image: url('IMG_3067.png');
+      background-image: url('IMG_3076.png');
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
-      width: 250px;
-      height: 650px;
+      width: 320px;
+      height: 800px;
       margin-right: 20px;
       position: relative;
     }
@@ -216,11 +216,11 @@
       capturedImages.forEach((src, index) => {
         const img = document.createElement('img');
         img.src = src;
-        img.style.width = '120px';
-        img.style.height = '160px';
+        img.style.width = '182px';
+        img.style.height = '226px';
         img.style.position = 'absolute';
-        img.style.left = '62px';
-        img.style.top = (70 + index * 206) + 'px';
+        img.style.left = '69px';
+        img.style.top = (107 + index * 236) + 'px';
         img.style.transform = 'scaleX(-1)';
         frame.appendChild(img);
       });
@@ -249,7 +249,7 @@
       if (capturedImages.length < 3) return alert("Take 3 photos first");
 
       const frame = new Image();
-      frame.src = 'IMG_3067.png';
+      frame.src = 'IMG_3076.png';
       frame.onload = () => {
         const finalCanvas = document.createElement('canvas');
         finalCanvas.width = frame.width;
@@ -258,10 +258,10 @@
 
         finalCtx.drawImage(frame, 0, 0);
 
-        const imgY = [70, 276, 482];
-        const imgX = 62;
-        const imgW = 120;
-        const imgH = 160;
+        const imgY = [107, 343, 579];
+        const imgX = 69;
+        const imgW = 182;
+        const imgH = 226;
 
         let loadedCount = 0;
 
