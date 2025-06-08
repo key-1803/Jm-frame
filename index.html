@@ -87,7 +87,7 @@
     <div class="photo-area" id="photoArea">
       <div id="countdown"></div>
     </div>
-    <div class="frame"></div>
+    <div class="frame" id="photoFrame"></div>
   </div>
   <div class="buttons">
     <button onclick="startBooth()">Start</button>
@@ -123,6 +123,7 @@
 
     async function startBooth() {
       await initVideo();
+      retakePhotos(); // clear previous
 
       let photoArea = document.getElementById('photoArea');
       let countdownEl = document.getElementById('countdown');
@@ -152,19 +153,34 @@
 
         let imgData = canvas.toDataURL('image/png');
         capturedImages.push(imgData);
-
-        let img = document.createElement('img');
-        img.src = imgData;
-        img.style.width = '30%';
-        img.style.margin = '5px';
-        photoArea.appendChild(img);
       }
+
+      updateFramePreview();
     }
 
     function retakePhotos() {
       capturedImages = [];
       let photoArea = document.getElementById('photoArea');
       photoArea.innerHTML = '<div id="countdown"></div>';
+      let frame = document.getElementById('photoFrame');
+      frame.innerHTML = '';
+    }
+
+    function updateFramePreview() {
+      const frame = document.getElementById('photoFrame');
+      frame.innerHTML = '';
+
+      capturedImages.forEach((src, index) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.style.width = '70px';
+        img.style.height = '45px';
+        img.style.position = 'absolute';
+        img.style.left = '65px';
+        img.style.top = (72 + index * 208) + 'px';
+        img.style.transform = 'scaleX(-1)';
+        frame.appendChild(img);
+      });
     }
 
     function downloadImage() {
@@ -211,4 +227,3 @@
   </script>
 </body>
 </html>
-
