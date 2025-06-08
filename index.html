@@ -27,8 +27,8 @@
     }
     #overview {
       transform: scaleX(-1);
-      width: 200px;
-      height: 150px;
+      width: 160px;
+      height: 120px;
       background: #222;
       margin-top: 10px;
     }
@@ -39,8 +39,8 @@
       margin-top: 20px;
     }
     #controls button {
-      font-size: 32px;
-      padding: 24px 48px;
+      font-size: 36px;
+      padding: 28px 52px;
     }
     #frameContainer {
       position: relative;
@@ -79,6 +79,10 @@
       display: none;
       z-index: 10;
     }
+    #finalPreview {
+      margin-top: 20px;
+      border: 2px solid #333;
+    }
   </style>
 </head>
 <body>
@@ -93,6 +97,7 @@
       <button id="retakeBtn">Retake</button>
       <button id="downloadBtn">Download</button>
     </div>
+    <img id="finalPreview" src="" style="display:none; width:244px; height:auto;" />
   </div>
 
   <div id="frameContainer">
@@ -145,35 +150,17 @@
       ctx.scale(-1, 1);
       ctx.drawImage(liveVideo, 0, 0, canvas.width, canvas.height);
 
-      // update overview
-      overviewCanvas.width = 200;
-      overviewCanvas.height = 150;
+      overviewCanvas.width = 160;
+      overviewCanvas.height = 120;
       ctxOverview.save();
-      ctxOverview.clearRect(0, 0, 200, 150);
-      ctxOverview.translate(200, 0);
+      ctxOverview.clearRect(0, 0, 160, 120);
+      ctxOverview.translate(160, 0);
       ctxOverview.scale(-1, 1);
-      ctxOverview.drawImage(liveVideo, 0, 0, 200, 150);
+      ctxOverview.drawImage(liveVideo, 0, 0, 160, 120);
       ctxOverview.restore();
     }
 
-    document.getElementById("startBtn").addEventListener("click", async () => {
-      for (let i = 0; i < 3; i++) {
-        await new Promise((resolve) => showCountdown(() => {
-          capturePhoto(i);
-          resolve();
-        }));
-      }
-    });
-
-    document.getElementById("retakeBtn").addEventListener("click", () => {
-      canvases.forEach((c) => {
-        const ctx = c.getContext("2d");
-        ctx.clearRect(0, 0, c.width, c.height);
-      });
-      ctxOverview.clearRect(0, 0, 200, 150);
-    });
-
-    document.getElementById("downloadBtn").addEventListener("click", () => {
+    function generateFinalPreview() {
       const finalCanvas = document.createElement("canvas");
       finalCanvas.width = 731;
       finalCanvas.height = 2048;
@@ -183,7 +170,6 @@
       ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
       const offsets = [65, 606, 1147];
-
       canvases.forEach((c, i) => {
         ctx.drawImage(c, 30, offsets[i], 671, 496);
       });
@@ -192,11 +178,36 @@
       frame.src = "IMG_3067.png";
       frame.onload = () => {
         ctx.drawImage(frame, 0, 0, 731, 2048);
-        const link = document.createElement("a");
-        link.download = "photobooth.png";
-        link.href = finalCanvas.toDataURL();
-        link.click();
+        const finalImage = document.getElementById("finalPreview");
+        finalImage.src = finalCanvas.toDataURL();
+        finalImage.style.display = "block";
       };
+    }
+
+    document.getElementById("startBtn").addEventListener("click", async () => {
+      for (let i = 0; i < 3; i++) {
+        await new Promise((resolve) => showCountdown(() => {
+          capturePhoto(i);
+          resolve();
+        }));
+      }
+      generateFinalPreview();
+    });
+
+    document.getElementById("retakeBtn").addEventListener("click", () => {
+      canvases.forEach((c) => {
+        const ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, c.width, c.height);
+      });
+      ctxOverview.clearRect(0, 0, 160, 120);
+      document.getElementById("finalPreview").style.display = "none";
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      const link = document.createElement("a");
+      link.download = "photobooth.png";
+      link.href = document.getElementById("finalPreview").src;
+      link.click();
     });
   </script>
 </body>
