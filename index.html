@@ -83,18 +83,6 @@
       0% { opacity: 1; }
       100% { opacity: 0; }
     }
-
-    #preview-title {
-      margin-top: 40px;
-      color: white;
-      font-size: 2em;
-    }
-
-    .preview {
-      display: flex;
-      justify-content: center;
-      margin-top: 30px;
-    }
   </style>
 </head>
 <body>
@@ -109,11 +97,6 @@
     <button onclick="startBooth()">Start</button>
     <button onclick="downloadImage()">Download</button>
     <button onclick="retakePhotos()">Retake</button>
-  </div>
-
-  <h2 id="preview-title">Preview Hasil Akhir</h2>
-  <div class="preview">
-    <canvas id="preview-canvas" width="731" height="2048"></canvas>
   </div>
 
   <script>
@@ -180,17 +163,11 @@
       capturedImages = [];
       const ctxMain = document.getElementById('main-canvas').getContext('2d');
       ctxMain.clearRect(0, 0, 731, 2048);
-
-      const ctxPreview = document.getElementById('preview-canvas').getContext('2d');
-      ctxPreview.clearRect(0, 0, 731, 2048);
     }
 
     function updateFramePreview() {
       const ctxMain = document.getElementById('main-canvas').getContext('2d');
-      const ctxPreview = document.getElementById('preview-canvas').getContext('2d');
-
       ctxMain.clearRect(0, 0, 731, 2048);
-      ctxPreview.clearRect(0, 0, 731, 2048);
 
       const photoPositions = [
         { x: 85, y: 50 },
@@ -202,13 +179,11 @@
         const img = new Image();
         img.src = src;
         img.onload = () => {
-          [ctxMain, ctxPreview].forEach(ctx => {
-            ctx.save();
-            ctx.translate(photoPositions[index].x + 561, photoPositions[index].y);
-            ctx.scale(-1, 1);
-            ctx.drawImage(img, 0, 0, 561, 429);
-            ctx.restore();
-          });
+          ctxMain.save();
+          ctxMain.translate(photoPositions[index].x + 561, photoPositions[index].y);
+          ctxMain.scale(-1, 1);
+          ctxMain.drawImage(img, 0, 0, 561, 429);
+          ctxMain.restore();
         };
       });
     }
