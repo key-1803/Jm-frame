@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Happy Jaemin Day!</title>
+  <title>Happy Jaemin Day</title>
   <style>
     body {
       margin: 0;
@@ -47,20 +46,19 @@
     #buttons {
       position: absolute;
       bottom: 50px;
-      left: 220px;
+      left: 180px;
       display: flex;
-      gap: 30px;
+      gap: 20px;
       z-index: 2;
     }
     button {
-      padding: 10px 30px;
-      font-size: 28px;
+      padding: 10px 25px;
+      font-size: 24px;
       background-color: #ff80b5;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-family: 'Courier New', Courier, monospace;
     }
     button:hover {
       background-color: #ff4c9a;
@@ -70,10 +68,11 @@
 <body>
   <div id="container">
     <video id="video" autoplay playsinline></video>
-    <canvas id="canvas" width="731" height="2048"></canvas>
+    <canvas id="canvas" width="648" height="1944"></canvas>
     <div id="countdown">3</div>
     <div id="buttons">
       <button onclick="takePhotos()">Start</button>
+      <button onclick="retakePhotos()">Retake</button>
       <button onclick="downloadPhoto()">Download</button>
     </div>
   </div>
@@ -89,7 +88,7 @@
     let photos = [];
     let taking = false;
 
-    // Mirror the video preview
+    // Start camera
     navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
       video.srcObject = stream;
     });
@@ -128,23 +127,25 @@
     }
 
     function capturePhoto() {
+      const width = 648;
+      const height = 648;
       const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = 731;
-      tempCanvas.height = 683;
+      tempCanvas.width = width;
+      tempCanvas.height = height;
       const tempCtx = tempCanvas.getContext("2d");
 
-      // Mirror capture
-      tempCtx.translate(tempCanvas.width, 0);
+      // Flip horizontally
+      tempCtx.translate(width, 0);
       tempCtx.scale(-1, 1);
-      tempCtx.drawImage(video, 0, 0, 731, 683);
+      tempCtx.drawImage(video, 0, 0, width, height);
 
       return tempCanvas;
     }
 
     function drawFinalImage() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      photos.forEach((photoCanvas, i) => {
-        ctx.drawImage(photoCanvas, 0, i * 683, 731, 683);
+      photos.forEach((p, i) => {
+        ctx.drawImage(p, 0, i * 648, 648, 648);
       });
 
       if (frameImg.complete) {
@@ -157,10 +158,20 @@
     }
 
     function downloadPhoto() {
+      if (photos.length !== 3) {
+        alert("Please take 3 photos first.");
+        return;
+      }
       const link = document.createElement("a");
       link.download = "Happy_Jaemin_Day.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
+    }
+
+    function retakePhotos() {
+      photos = [];
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      alert("Photos cleared. You can start again!");
     }
   </script>
 </body>
