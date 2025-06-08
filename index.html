@@ -37,6 +37,13 @@
       position: relative;
     }
 
+    canvas#overview {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 5;
+    }
+
     .frame-overlay {
       position: absolute;
       top: 0;
@@ -86,6 +93,7 @@
   <h1>Happy Jaemin Day!</h1>
   <div class="container">
     <div class="frame" id="photoFrame">
+      <canvas id="overview" width="731" height="2048"></canvas>
       <img src="IMG_3067.png" class="frame-overlay" />
     </div>
   </div>
@@ -155,32 +163,30 @@
 
     function retakePhotos() {
       capturedImages = [];
-      const frame = document.getElementById('photoFrame');
-      frame.innerHTML = '<img src="IMG_3067.png" class="frame-overlay" />';
+      const ctxOverview = document.getElementById('overview').getContext('2d');
+      ctxOverview.clearRect(0, 0, 731, 2048);
     }
 
     function updateFramePreview() {
-      const frame = document.getElementById('photoFrame');
-      frame.innerHTML = '<img src="IMG_3067.png" class="frame-overlay" />';
+      const ctxOverview = document.getElementById('overview').getContext('2d');
+      ctxOverview.clearRect(0, 0, 731, 2048);
 
       const photoPositions = [
-        { top: 50, left: 85 },
-        { top: 740, left: 85 },
-        { top: 1430, left: 85 }
+        { x: 85, y: 50 },
+        { x: 85, y: 740 },
+        { x: 85, y: 1430 }
       ];
 
       capturedImages.forEach((src, index) => {
-        const img = document.createElement('img');
+        const img = new Image();
         img.src = src;
-        img.style.width = '1248px';
-        img.style.height = '954px';
-        img.style.position = 'absolute';
-        img.style.left = photoPositions[index].left + 'px';
-        img.style.top = photoPositions[index].top + 'px';
-        img.style.transform = 'scaleX(-1)';
-        img.style.width = '561px';
-        img.style.height = '429px';
-        frame.appendChild(img);
+        img.onload = () => {
+          ctxOverview.save();
+          ctxOverview.translate(photoPositions[index].x + 561, photoPositions[index].y);
+          ctxOverview.scale(-1, 1);
+          ctxOverview.drawImage(img, 0, 0, 561, 429);
+          ctxOverview.restore();
+        };
       });
     }
 
@@ -194,8 +200,6 @@
         finalCanvas.width = 731;
         finalCanvas.height = 2048;
         const finalCtx = finalCanvas.getContext('2d');
-
-        finalCtx.drawImage(frame, 0, 0);
 
         const photoPositions = [50, 740, 1430];
 
@@ -213,6 +217,7 @@
 
             loadedCount++;
             if (loadedCount === 3) {
+              finalCtx.drawImage(frame, 0, 0);
               const link = document.createElement('a');
               link.download = 'jaemin_photobooth.png';
               link.href = finalCanvas.toDataURL();
